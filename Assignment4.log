@@ -1,0 +1,55 @@
+---------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  D:\School\ECON 6217\Assignment4.log
+  log type:  text
+ opened on:  16 Apr 2018, 19:38:45
+
+. 
+. *Generate time variable
+. gen time = ym(year,month)
+
+. 
+. xtset lagunabeach time
+       panel variable:  lagunabeach (strongly balanced)
+        time variable:  time, 504 to 563
+                delta:  1 unit
+
+. 
+. 
+. *Problem 3
+. xtdescribe burglary_res_percap burglary_nonres_percap
+varlist not allowed
+r(101);
+
+end of do-file
+
+r(101);
+
+. do "C:\Users\Allen\AppData\Local\Temp\STD1cd0_000000.tmp"
+
+. /********************
+> 
+>         Manning Worthley
+>         Econ 6217 
+>         Assignment 4
+> 
+> *********************/
+. 
+. *Get Data
+. 
+. use "D:\School\ECON 6217\laguna-replicate.dta", replace
+
+. log using "D:\School\ECON 6217\Assignment4.log", replace
+log file already open
+r(604);
+
+end of do-file
+
+r(604);
+
+. log close
+      name:  <unnamed>
+       log:  D:\School\ECON 6217\Assignment4.log
+  log type:  text
+ closed on:  16 Apr 2018, 19:42:03
+---------------------------------------------------------------------------------------------

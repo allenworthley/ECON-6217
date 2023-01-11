@@ -1,0 +1,373 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  D:\School\ECON 6217\TermPaper.log
+  log type:  text
+ opened on:   7 May 2018, 15:22:08
+
+. 
+. import excel "D:\School\ECON 6217\Bitcoin Futures Data.xlsx", firstrow
+
+. 
+. gen time =_n
+
+. tset time
+        time variable:  time, 1 to 98
+                delta:  1 unit
+
+.         *Differenced data calculated in excel
+.         *First row of data is blank
+. drop if time==1
+(1 observation deleted)
+
+. 
+. *Summary Statistics
+. corr FuturesReturns BitstampReturns GemniReturns 
+(obs=97)
+
+             | Future~s Bitsta~s GemniR~s
+-------------+---------------------------
+FuturesRet~s |   1.0000
+BitstampRe~s |   0.9419   1.0000
+GemniReturns |   0.9798   0.9480   1.0000
+
+
+. sum FuturesReturns BitstampReturns GemniReturns
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+FuturesRet~s |         97   -97.06186    745.2635      -2745       1850
+BitstampRe~s |         97   -80.60825    761.8529   -2396.85    2461.67
+GemniReturns |         97   -84.36077    699.1163   -2766.26    1730.27
+
+. 
+. *Level Stationarity Tests
+.         * None are stationary
+. dfuller FuturesPrice, lag(1)
+
+Augmented Dickey-Fuller test for unit root         Number of obs   =        95
+
+                               ---------- Interpolated Dickey-Fuller ---------
+                  Test         1% Critical       5% Critical      10% Critical
+               Statistic           Value             Value             Value
+------------------------------------------------------------------------------
+ Z(t)             -2.159            -3.517            -2.894            -2.582
+------------------------------------------------------------------------------
+MacKinnon approximate p-value for Z(t) = 0.2215
+
+. dfuller Bitstamp, lag(1)
+
+Augmented Dickey-Fuller test for unit root         Number of obs   =        95
+
+                               ---------- Interpolated Dickey-Fuller ---------
+                  Test         1% Critical       5% Critical      10% Critical
+               Statistic           Value             Value             Value
+------------------------------------------------------------------------------
+ Z(t)             -1.949            -3.517            -2.894            -2.582
+------------------------------------------------------------------------------
+MacKinnon approximate p-value for Z(t) = 0.3093
+
+. dfuller Gemni, lag(1)
+
+Augmented Dickey-Fuller test for unit root         Number of obs   =        95
+
+                               ---------- Interpolated Dickey-Fuller ---------
+                  Test         1% Critical       5% Critical      10% Critical
+               Statistic           Value             Value             Value
+------------------------------------------------------------------------------
+ Z(t)             -1.969            -3.517            -2.894            -2.582
+------------------------------------------------------------------------------
+MacKinnon approximate p-value for Z(t) = 0.3003
+
+. 
+. *Return Stationarity Tests
+.         * All are stationary
+. dfuller FuturesReturns, lag(1)
+
+Augmented Dickey-Fuller test for unit root         Number of obs   =        95
+
+                               ---------- Interpolated Dickey-Fuller ---------
+                  Test         1% Critical       5% Critical      10% Critical
+               Statistic           Value             Value             Value
+------------------------------------------------------------------------------
+ Z(t)             -7.785            -3.517            -2.894            -2.582
+------------------------------------------------------------------------------
+MacKinnon approximate p-value for Z(t) = 0.0000
+
+. dfuller BitstampReturns, lag(1)
+
+Augmented Dickey-Fuller test for unit root         Number of obs   =        95
+
+                               ---------- Interpolated Dickey-Fuller ---------
+                  Test         1% Critical       5% Critical      10% Critical
+               Statistic           Value             Value             Value
+------------------------------------------------------------------------------
+ Z(t)             -7.573            -3.517            -2.894            -2.582
+------------------------------------------------------------------------------
+MacKinnon approximate p-value for Z(t) = 0.0000
+
+. dfuller GemniReturns, lag(1)
+
+Augmented Dickey-Fuller test for unit root         Number of obs   =        95
+
+                               ---------- Interpolated Dickey-Fuller ---------
+                  Test         1% Critical       5% Critical      10% Critical
+               Statistic           Value             Value             Value
+------------------------------------------------------------------------------
+ Z(t)             -7.351            -3.517            -2.894            -2.582
+------------------------------------------------------------------------------
+MacKinnon approximate p-value for Z(t) = 0.0000
+
+. 
+. 
+. *Granger Causality Tests
+. gcause FuturesReturns GemniReturns, lags(1)
+Granger causality test                                   Sample: 3 to 98
+                                                                obs = 96
+H0: GemniReturns does not Granger-cause FuturesReturns
+
+              F( 1, 93) =    1.91
+               Prob > F =   0.1701
+
+                chi2(1) =    1.97      (asymptotic)
+            Prob > chi2 =  0.1601      (asymptotic)
+
+. gcause GemniReturns FuturesReturns, lags(1)
+Granger causality test                                   Sample: 3 to 98
+                                                                obs = 96
+H0: FuturesReturns does not Granger-cause GemniReturns
+
+              F( 1, 93) =    0.82
+               Prob > F =   0.3687
+
+                chi2(1) =    0.84      (asymptotic)
+            Prob > chi2 =  0.3588      (asymptotic)
+
+. 
+. gcause FuturesReturns BitstampReturns, lags(1)
+Granger causality test                                   Sample: 3 to 98
+                                                                obs = 96
+H0: BitstampReturns does not Granger-cause FuturesReturns
+
+              F( 1, 93) =    0.60
+               Prob > F =   0.4408
+
+                chi2(1) =    0.62      (asymptotic)
+            Prob > chi2 =  0.4316      (asymptotic)
+
+. gcause BitstampReturns FuturesReturns, lags(1)
+Granger causality test                                   Sample: 3 to 98
+                                                                obs = 96
+H0: FuturesReturns does not Granger-cause BitstampReturns
+
+              F( 1, 93) =    5.64
+               Prob > F =   0.0196
+
+                chi2(1) =    5.82      (asymptotic)
+            Prob > chi2 =  0.0158      (asymptotic)
+
+. 
+. 
+. *Var Models
+.         *AIC criteria used to choose lag order for VAR model
+. local xlist "FuturesReturns GemniReturns"
+
+. quietly var `xlist'
+
+. varsoc
+
+   Selection-order criteria
+   Sample:  4 - 98                              Number of obs      =        95
+  +---------------------------------------------------------------------------+
+  |lag |    LL      LR      df    p      FPE       AIC      HQIC      SBIC    |
+  |----+----------------------------------------------------------------------|
+  |  0 |  -1357.5                      9.2e+09    28.621   28.6427   28.6748* |
+  |  1 | -1348.55  17.893    4  0.001  8.3e+09   28.5169   28.5821*  28.6782  |
+  |  2 | -1342.84  11.423*   4  0.022  8.0e+09*  28.4809*  28.5895   28.7497  |
+  +---------------------------------------------------------------------------+
+   Endogenous:  FuturesReturns GemniReturns
+    Exogenous:  _cons
+
+. var `xlist', lags(1/2)
+
+Vector autoregression
+
+Sample:  4 - 98                                 Number of obs     =         95
+Log likelihood =   -1342.84                     AIC               =   28.48085
+FPE            =   8.02e+09                     HQIC              =   28.58948
+Det(Sigma_ml)  =   6.50e+09                     SBIC              =   28.74968
+
+Equation           Parms      RMSE     R-sq      chi2     P>chi2
+----------------------------------------------------------------
+FuturesReturns        5     737.851   0.0643   6.529654   0.1629
+GemniReturns          5     703.971   0.0326   3.197295   0.5254
+----------------------------------------------------------------
+
+------------------------------------------------------------------------------
+             |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+FuturesRet~s |
+FuturesRet~s |
+         L1. |  -1.343541   .5837656    -2.30   0.021      -2.4877    -.199381
+         L2. |  -.2320389   .5279354    -0.44   0.660    -1.266773    .8026954
+             |
+GemniReturns |
+         L1. |   1.343542   .6168955     2.18   0.029     .1344492    2.552635
+         L2. |    .157828   .5622546     0.28   0.779    -.9441707    1.259827
+             |
+       _cons |  -101.1455   75.10794    -1.35   0.178    -248.3544    46.06335
+-------------+----------------------------------------------------------------
+GemniReturns |
+FuturesRet~s |
+         L1. |  -.8598449   .5569609    -1.54   0.123    -1.951468    .2317783
+         L2. |  -.0319436   .5036942    -0.06   0.949    -1.019166    .9552788
+             |
+GemniReturns |
+         L1. |   .8389975   .5885695     1.43   0.154    -.3145775    1.992572
+         L2. |  -.0056131   .5364375    -0.01   0.992    -1.057011    1.045785
+             |
+       _cons |  -88.01148   71.65921    -1.23   0.219     -228.461    52.43799
+------------------------------------------------------------------------------
+
+. vargranger
+
+   Granger causality Wald tests
+  +------------------------------------------------------------------+
+  |          Equation           Excluded |   chi2     df Prob > chi2 |
+  |--------------------------------------+---------------------------|
+  |    FuturesReturns       GemniReturns |  4.9761     2    0.083    |
+  |    FuturesReturns                ALL |  4.9761     2    0.083    |
+  |--------------------------------------+---------------------------|
+  |      GemniReturns     FuturesReturns |  2.6512     2    0.266    |
+  |      GemniReturns                ALL |  2.6512     2    0.266    |
+  +------------------------------------------------------------------+
+
+. 
+. var `xlist', lags(1)
+
+Vector autoregression
+
+Sample:  3 - 98                                 Number of obs     =         96
+Log likelihood =  -1364.524                     AIC               =   28.55258
+FPE            =   8.62e+09                     HQIC              =   28.61737
+Det(Sigma_ml)  =   7.60e+09                     SBIC              =   28.71285
+
+Equation           Parms      RMSE     R-sq      chi2     P>chi2
+----------------------------------------------------------------
+FuturesReturns        3     745.601   0.0270   2.663591   0.2640
+GemniReturns          3     705.564   0.0125   1.215406   0.5446
+----------------------------------------------------------------
+
+------------------------------------------------------------------------------
+             |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+FuturesRet~s |
+FuturesRet~s |
+         L1. |  -.7747014   .5022193    -1.54   0.123    -1.759033    .2096304
+             |
+GemniReturns |
+         L1. |   .7519577   .5353581     1.40   0.160     -.297325     1.80124
+             |
+       _cons |   -104.578   75.61145    -1.38   0.167    -252.7737    43.61773
+-------------+----------------------------------------------------------------
+GemniReturns |
+FuturesRet~s |
+         L1. |  -.4361242   .4752517    -0.92   0.359    -1.367601    .4953521
+             |
+GemniReturns |
+         L1. |   .3935097   .5066111     0.78   0.437    -.5994298    1.386449
+             |
+       _cons |  -95.70386   71.55135    -1.34   0.181    -235.9419    44.53421
+------------------------------------------------------------------------------
+
+. vargranger
+
+   Granger causality Wald tests
+  +------------------------------------------------------------------+
+  |          Equation           Excluded |   chi2     df Prob > chi2 |
+  |--------------------------------------+---------------------------|
+  |    FuturesReturns       GemniReturns |  1.9729     1    0.160    |
+  |    FuturesReturns                ALL |  1.9729     1    0.160    |
+  |--------------------------------------+---------------------------|
+  |      GemniReturns     FuturesReturns |  .84212     1    0.359    |
+  |      GemniReturns                ALL |  .84212     1    0.359    |
+  +------------------------------------------------------------------+
+
+. 
+. 
+. local x1list "FuturesReturns BitstampReturns"
+
+. quietly var `x1list'
+
+. varsoc
+
+   Selection-order criteria
+   Sample:  4 - 98                              Number of obs      =        95
+  +---------------------------------------------------------------------------+
+  |lag |    LL      LR      df    p      FPE       AIC      HQIC      SBIC    |
+  |----+----------------------------------------------------------------------|
+  |  0 | -1418.63                      3.3e+10    29.908   29.9297   29.9618  |
+  |  1 | -1392.97  51.331*   4  0.000  2.1e+10*  29.4519*  29.5171*  29.6132* |
+  |  2 | -1389.35  7.2309    4  0.124  2.1e+10     29.46   29.5686   29.7288  |
+  +---------------------------------------------------------------------------+
+   Endogenous:  FuturesReturns BitstampReturns
+    Exogenous:  _cons
+
+. var `x1list', lags(1)
+
+Vector autoregression
+
+Sample:  3 - 98                                 Number of obs     =         96
+Log likelihood =  -1409.765                     AIC               =    29.4951
+FPE            =   2.21e+10                     HQIC              =   29.55988
+Det(Sigma_ml)  =   1.95e+10                     SBIC              =   29.65537
+
+Equation           Parms      RMSE     R-sq      chi2     P>chi2
+----------------------------------------------------------------
+FuturesReturns        3     750.808   0.0134   1.299743   0.5221
+BitstampReturns       3     747.534   0.0639   6.550619   0.0378
+----------------------------------------------------------------
+
+------------------------------------------------------------------------------
+             |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+FuturesRet~s |
+FuturesRet~s |
+         L1. |   .1397033   .3014122     0.46   0.643    -.4510538    .7304604
+             |
+BitstampRe~s |
+         L1. |  -.2318596   .2948027    -0.79   0.432    -.8096623     .345943
+             |
+       _cons |  -97.90252    76.1924    -1.28   0.199    -247.2369    51.43183
+-------------+----------------------------------------------------------------
+BitstampRe~s |
+FuturesRet~s |
+         L1. |   .7240493   .3000977     2.41   0.016     .1358686     1.31223
+             |
+BitstampRe~s |
+         L1. |  -.7512305    .293517    -2.56   0.010    -1.326513   -.1759477
+             |
+       _cons |  -75.41295   75.86011    -0.99   0.320     -224.096    73.27014
+------------------------------------------------------------------------------
+
+. vargranger
+
+   Granger causality Wald tests
+  +------------------------------------------------------------------+
+  |          Equation           Excluded |   chi2     df Prob > chi2 |
+  |--------------------------------------+---------------------------|
+  |    FuturesReturns    BitstampReturns |  .61857     1    0.432    |
+  |    FuturesReturns                ALL |  .61857     1    0.432    |
+  |--------------------------------------+---------------------------|
+  |   BitstampReturns     FuturesReturns |  5.8212     1    0.016    |
+  |   BitstampReturns                ALL |  5.8212     1    0.016    |
+  +------------------------------------------------------------------+
+
+. 
+. 
+. 
+. log close
+      name:  <unnamed>
+       log:  D:\School\ECON 6217\TermPaper.log
+  log type:  text
+ closed on:   7 May 2018, 15:22:08
+-------------------------------------------------------------------------------
